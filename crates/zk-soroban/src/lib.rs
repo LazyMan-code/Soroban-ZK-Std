@@ -25,3 +25,17 @@ impl ZkEnv for Env {
         validate_soroban_scalar(self, val)
     }
 }
+
+use soroban_sdk::{contract, contractimpl};
+
+#[contract]
+pub struct ZkContract;
+
+#[contractimpl]
+impl ZkContract {
+    /// Benchmark function to ensure CI measures REAL library footprint.
+    pub fn validate_scalar(env: Env, val: U256) -> bool {
+        // This forces the compiler to include the ethnum and zk-core logic
+        env.is_bn254_scalar(val)
+    }
+}

@@ -3,7 +3,9 @@ name = "verifier-sample"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib", "rlib"]  # cdylib for WASM, rlib so tests can link against it
+
 [dependencies]
 soroban-sdk = { workspace = true }
-# This is the critical line:
 zk-soroban = { workspace = true }

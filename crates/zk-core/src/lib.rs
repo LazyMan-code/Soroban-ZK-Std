@@ -52,7 +52,7 @@ impl Bn254 {
         let mut res = p0 % Self::BASE_MODULUS;
 
         // Handle p1 and p2 (shifted by 128 bits)
-        let mut p1_p2 = (p1 % Self::BASE_MODULUS);
+        let mut p1_p2 = p1 % Self::BASE_MODULUS;
         p1_p2 = Self::add(p1_p2, p2 % Self::BASE_MODULUS);
         for _ in 0..128 {
             p1_p2 = Self::add(p1_p2, p1_p2); // Modular doubling

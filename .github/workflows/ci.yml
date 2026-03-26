@@ -1,0 +1,84 @@
+name: Soroban ZK Standard CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify-and-test:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+          components: rustfmt, clippy
+
+      - name: 🚨 Enforce Formatting (cargo fmt)
+        run: cargo fmt --all -- --check
+
+      - name: 🔍 Strict Linting (cargo clippy)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: 🧪 Run Tests (no_std environment)
+        run: cargo test --release
+
+      - name: A check that specifically compiles for the target without the standard library.
+        run: cargo build --target wasm32-unknown-unknown --no-default-features
+
+      - name: 🧪 Run Miri (Memory Safety Audit)
+        run: |
+          rustup component add miri
+          cargo miri test
+      - name: 🛡️ Audit Dependencies (cargo-deny)
+        uses: EmbarkStudios/cargo-deny-action@v1
+
+  wasm-size-check:
+    name: 📦 WASM 64KB Limit Check
+    runs-on: ubuntu-latest
+    needs: verify-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: Build ZK-Soroban Crate
+        # We target the specific crate that developers will actually import
+        run: cargo build --release --target wasm32-unknown-unknown -p zk-soroban
+
+      - name: Check WASM Size
+        run: |
+          # The explicit path for your workspace crate
+          WASM_FILE="target/wasm32-unknown-unknown/release/zk_soroban.wasm"
+
+          if [ ! -f "$WASM_FILE" ]; then
+            echo "❌ Error: zk_soroban.wasm not found! Check if the build step succeeded."
+            exit 1
+          fi
+
+          SIZE=$(stat -c%s "$WASM_FILE")
+          MAX_SIZE=65536 # 64KB limit
+
+          echo "Current zk-soroban size: $SIZE bytes"
+
+          if [ $SIZE -gt $MAX_SIZE ]; then
+            echo "❌ CRITICAL: WASM exceeds 64KB! Grant requirement failed."
+            exit 1
+          else
+            echo "✅ SUCCESS: $SIZE bytes is within the safe zone."
+          fi

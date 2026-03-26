@@ -35,3 +35,72 @@ Add this to your `Cargo.toml`:
 [dependencies]
 zk-soroban = { git = "[https://github.com/georgegoldman/Soroban-ZK-Std](https://github.com/georgegoldman/Soroban-ZK-Std)" }
 ```
+
+## 🛠️ Contributing to Soroban-ZK-Std
+Soroban-ZK-Std is a high-performance, no_std cryptographic library optimized specifically for the Stellar network. Because we operate within the strict limits of the Soroban Virtual Machine, our contribution standards are higher than standard Rust projects.
+
+### 🚀 Getting Started
+1. **Prerequisites**
+
+You must have the following installed:
+- **Rust (Nightly/Stable):** `rustup target add wasm32-unknown-unknown`
+
+- **Soroban CLI:** `cargo install --locked soroban-cli`
+
+- **Twiggy & Bloat:** (For size auditing) `cargo install twiggy cargo-bloat`
+
+2. Local Environment Setup
+
+Clone the repo and run the master check to ensure your environment is compatible:
+```bash
+git clone https://github.com/georgegoldman/Soroban-ZK-Std.git
+cd Soroban-ZK-Std
+make all
+```
+
+### 🏗️ Project Architecture
+To keep the library modular, we split the code into three distinct areas:
+
+| Component         | Path                          | Purpose                                                                 |
+|------------------|-------------------------------|-------------------------------------------------------------------------|
+| zk-core          | crates/zk-core/               | Pure Math. Elliptic curve logic, Field arithmetic, and U256 mappings. No Soroban dependencies here. |
+| zk-soroban       | crates/zk-soroban/            | Stellar Integration. Traits that extend the Soroban Env, host-function mappings, and XDR conversion. |
+| verifier-sample  | contracts/verifier-sample/    | Integration Tests. A sample contract used to verify WASM size and gas costs. |
+
+**Rule:** 
+
+If you are adding a new mathematical primitive (e.g., a new Curve), it goes in `zk-core`. If you are adding a tool for developers to use in their contracts, it goes in `zk-soroban`.
+
+### 📥 How to Add Your Code
+
+1. **Claim an Issue**
+Check the [Issues](https://www.google.com/search?q=https://github.com/georgegoldman/Soroban-ZK-Std/issues) tab for "Good First Issues" or "Stellar Wave Bounties." Comment on the issue to be assigned.
+
+2. **Implementation Rules**
+
+- **No Standard Library:** We are strictly `#![no_std]`. Do not use `std::`. Use `core::` or `alloc::` (if absolutely necessary).
+
+- **No Panics:** Avoid `unwrap()` and `expect()`. Use `Result<T, ZkError>` to allow contracts to handle errors gracefully.
+
+- **Constant Time:** All cryptographic operations (add, mul, inv) **must** be constant-time to prevent side-channel attacks.
+
+3. **Testing**
+
+Add unit tests in the same file as your code using a `mod test` block. Ensure they run with:
+
+```bash 
+cargo test -p <your-crate-name>
+```
+
+## 🚦 The "Green Light" Checklist
+Before submitting a Pull Request (PR), you **must** run the local bouncer:
+
+1. **Linting:** make `clippy` (Must have 0 warnings).
+2. Formatting: `make fmt` (Standardizes style).
+3. Size Check: `make build-wasm`
+  - Check the size with twiggy top `target/wasm32-unknown-unknown/release/zk_soroban.wasm`.
+  - **If your code increases the size by > 5KB, your PR will require an optimization review.**
+
+
+## 📝 Pull Request Template
+When you open a PR, please use the provided template. Briefly explain the **Mathematical Logic** behind your changes and provide the **Instruction Cost** (gas) if applicable.

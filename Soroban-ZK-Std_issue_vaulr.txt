@@ -1,0 +1,289 @@
+🏗️ Phase 1: The "Zero-Overhead" Core
+
+Goal:
+Fix the "Hard Stop" of data conversion. If it's not zero-copy, it's too slow.
+
+🔹 Issue #1: Zero-Copy Mapping for U256 ↔ Fr Field Elements
+
+Context:
+Existing solutions often incur overhead during conversion. We need a no_std, trait-based approach to map Soroban's host-managed U256 to our ethnum-backed field elements without heap allocation.
+
+Tasks:
+
+Implement SafeFrom for Fr (Field Element) using constant-time reduction
+Create a HostConvert trait to handle the env.crypto().bn254_fr_from_u256() host call
+Ensure the implementation is #[inline(always)] to minimize WASM stack depth
+
+Target:
+~15% reduction in conversion latency compared to standard Rust implementations
+
+🔹 Issue #2: CAP-0075 Poseidon2 Sponge Construction
+
+Context:
+Simply calling the host function isn't enough. Developers need a high-level "Sponge" API (absorb / squeeze) that doesn't blow the instruction budget.
+
+Tasks:
+
+Implement the Poseidon2 state machine
+Directly interface with env.crypto_hazmat().poseidon2_permutation() to avoid guest-side loop overhead
+Provide a hash_to_field utility compatible with Noir/Circom constraints
+⚡ Phase 2: Resource & Gas Superiority
+
+Goal:
+Beat the 400M instruction limit and the 64KB WASM cap
+
+🔹 Issue #3: Static Verification of Instruction Budgets
+
+Context:
+Soroban-ZK-Std should be the first library to provide "Gas-Guaranteed" primitives
+
+Tasks:
+
+Create a benchmarking suite to measure instruction usage for operations like G1Add and PairingCheck
+Publish a GAS.md table so developers can estimate costs before writing code
+
+Why this beats Tupui:
+Shifts the library from "it works" → "predictable for production"
+
+🔹 Issue #4: Dead-Code Elimination & WASM Bloat Audit
+
+Context:
+Many Rust ZK libraries pull in std or heavy formatting dependencies
+
+Tasks:
+
+Audit all dependencies (e.g., ethnum) to ensure zero-cost abstractions
+Implement lightweight custom panic handlers to replace std::panic
+
+Target:
+Core math module size < 12 KB
+
+🌐 Phase 3: Public Good & Institutional Readiness
+
+Goal:
+Position the project as foundational infrastructure for RWAs (Real World Assets)
+
+🔹 Issue #5: "Configurable Privacy" Shielded Asset Template
+
+Context:
+Build on governance-focused designs to enable private but compliant assets
+
+Tasks:
+
+Implement a Viewing Key system using ECC primitives
+Create a sample contract where:
+Transaction amounts are hidden (ZK)
+Regulators can decrypt using a specific key
+Document integration with Association Set Providers (ASPs) based on recent Stellar privacy research
+💡 Technical Differentiation
+Feature	Standard Rust Libs	Current Ecosystem (e.g., Tupui/Others)	Soroban-ZK-Std
+WASM Size	~150KB+ (Heavy)	~40–60KB	< 20KB (Ultra-Lean)
+Instruction Usage	Exceeds 400M	Manual Host Calls	Auto-Optimized Wrappers
+Data Types	Custom BigInts	Soroban Native	Zero-Copy Trait Mapping
+ZK Compatibility	Generic	Hard-coded	Noir/Circom Field Aligned
+
+
+Issue #,Title,Recommended Complexity,Logic
+#1,Zero-Copy Mapping...,High,"Requires deep understanding of ethnum, memory alignment, and field arithmetic. This is the ""Architect"" level task."
+#2,CAP-0075 Poseidon2...,Medium,"Implementation of a standard (CAP-0075) using host calls. Solid engineering, but follows a spec."
+#3,Static Verification...,Medium,Involves benchmarking and gas analysis. Critical for Soroban's resource-limited environment.
+#4,Dead-Code Elimination...,Trivial,"Standard cleanup and optimization. Great for attracting new contributors looking for a ""quick win."""
+#5,Shielded Asset Template,High,This is a full integration/example. It shows the value of the whole library to the grant committee.
+
+
+added additional 5 task
+👑 Architect-Level Issues (Core Security & Math)
+
+These require deep expertise in elliptic curve cryptography and modulus arithmetic.
+They form the security foundation of the library.
+
+🔹 Issue #1: G1 & G2 Curve Validation and Subgroup Checks
+
+Complexity: High
+
+The Problem:
+The Soroban host function bn254_multi_pairing_check assumes valid inputs.
+If a malicious user submits points that lie on the curve but not in the correct prime-order subgroup, the verifier becomes vulnerable to small-subgroup attacks.
+
+The Task:
+
+Implement curve equation checks:
+𝑦
+2
+=
+𝑥
+3
++
+3
+y
+2
+=x
+3
++3 for 
+𝐺
+1
+G
+1
+	​
+
+Implement BN254 subgroup checks:
+Multiply by scalar field modulus 
+𝑟
+r → must yield the point at infinity
+Optimize for minimal instruction usage so validation can run before every host pairing call
+🔹 Issue #2: Constant-Time Montgomery Multiplication for Fr & Fq
+
+Complexity: High
+
+The Problem:
+Standard modular arithmetic using division is extremely expensive in WASM.
+Even with ethnum, naive modulo operations introduce performance bottlenecks.
+
+The Task:
+
+Implement Montgomery reduction for:
+Scalar field 
+𝐹
+𝑟
+F
+r
+	​
+
+Base field 
+𝐹
+𝑞
+F
+q
+	​
+
+Define required constants:
+𝑅
+2
+m
+o
+d
+ 
+ 
+𝑟
+R
+2
+modr, Montgomery modulus, etc.
+Ensure strict constant-time execution to prevent timing side-channel attacks during proof verification
+🤝 Contributor-Friendly Issues (Isolated & Fundamental)
+
+These are ideal for contributors (e.g., Drips).
+They are self-contained math problems that can be built and tested locally.
+
+🔹 Issue #3: Fermat-Based Modular Inversion for Fr
+
+Complexity: Medium
+
+The Problem:
+Finite field division requires computing multiplicative inverses.
+
+The Task:
+
+Implement:
+𝑎
+−
+1
+≡
+𝑎
+𝑟
+−
+2
+m
+o
+d
+ 
+ 
+𝑟
+a
+−1
+≡a
+r−2
+modr
+Write a test suite to verify:
+𝑎
+×
+𝑎
+−
+1
+m
+o
+d
+ 
+ 
+𝑟
+=
+1
+a×a
+−1
+modr=1
+Ensure constant-time execution (no branching)
+🔹 Issue #4: Jacobian → Affine Coordinate Conversion
+
+Complexity: Medium
+
+The Problem:
+
+Point operations are cheaper in Jacobian/Projective coordinates
+But host functions and final verification require Affine coordinates 
+(
+𝑥
+,
+𝑦
+)
+(x,y)
+
+The Task:
+
+Implement conversion:
+Jacobian 
+(
+𝑋
+,
+𝑌
+,
+𝑍
+)
+(X,Y,Z) → Affine 
+(
+𝑥
+,
+𝑦
+)
+(x,y)
+Use Fermat inversion (from Issue #3) to compute:
+𝑍
+−
+1
+Z
+−1
+🔹 Issue #5: Fiat-Shamir Transcript State Machine (Non-Interactive)
+
+Complexity: Medium
+
+The Problem:
+ZK verifiers require a secure method to generate deterministic pseudo-random challenges from public inputs.
+
+The Task:
+
+Build a Transcript struct using the CAP-0075 Poseidon2 wrapper
+Implement:
+absorb() → takes 
+𝐹
+𝑟
+F
+r
+	​
+
+ elements and updates state
+squeeze_challenge() → outputs a valid 
+𝐹
+𝑟
+F
+r
+	​
+
+ challenge

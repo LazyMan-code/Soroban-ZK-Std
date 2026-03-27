@@ -4,18 +4,18 @@ use ethnum::u256;
 pub struct Bn254;
 
 impl Bn254 {
-    pub const MODULUS: u256 = u256::from_words(
-        0x30644e72e131a029b85045b68181585d,
-        0x97816a916871ca8d3c208c16d87cfd47,
+    pub const BASE_MODULUS: ethnum::u256 = ethnum::u256::from_words(
+        0x30644e72e131a029b85045b68181585d_u128, // high 128 bits (first 16 bytes)
+        0x97816a916871ca8d3c208c16d87cfd47_u128, // low 128 bits  (last 16 bytes)
     );
 
-    pub const BASE_MODULUS: u256 = u256::from_words(
-        0x30644e72e131a029b85045b68181585d,
-        0x97816a916871ca8d3c208c16d87cfd47,
-    );
+    // pub const BASE_MODULUS: u256 = u256::from_words(
+    //     0x30644e72e131a029b85045b68181585d,
+    //     0x97816a916871ca8d3c208c16d87cfd47,
+    // );
 
     pub fn is_valid_scalar(val: u256) -> bool {
-        val < Self::MODULUS
+        val < Self::BASE_MODULUS
     }
 
     pub fn add(a: u256, b: u256) -> u256 {

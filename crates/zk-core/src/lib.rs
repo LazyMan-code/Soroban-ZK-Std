@@ -197,7 +197,7 @@ impl Bn254 {
         while p2_red >= modulus {
             p2_red -= modulus;
         }
-        
+
         let mut p1_p2 = Self::add_mod(p1_red, p2_red, modulus);
         for _ in 0..128 {
             p1_p2 = Self::add_mod(p1_p2, p1_p2, modulus); // Modular doubling

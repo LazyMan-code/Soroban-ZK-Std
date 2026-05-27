@@ -47,34 +47,64 @@ fn g1_generator_neg() -> G1Affine {
 }
 
 /// Standard BN254 G2 generator (consistent with pairing.rs).
+// fn g2_generator() -> G2Affine {
+//     G2Affine {
+//         x: (
+//             u256::from_str_radix(
+//                 "10822403556616783d294cae447f68c351084c519bc131644754784460d3d548",
+//                 16,
+//             )
+//             .unwrap(),
+//             u256::from_str_radix(
+//                 "012c40590818290663486c8f967a1262d47155ec1608677c77d0a64983050961",
+//                 16,
+//             )
+//             .unwrap(),
+//         ),
+//         y: (
+//             u256::from_str_radix(
+//                 "0689357dbd07bdc858f01f28fd87f6b6e11802996d9ed800f1351194380126d4",
+//                 16,
+//             )
+//             .unwrap(),
+//             u256::from_str_radix(
+//                 "24f0c4314c4083a290e2124576307135e6179426f497401c37b60514f7b603d3",
+//                 16,
+//             )
+//             .unwrap(),
+//         ),
+//     }
+// }
+
 fn g2_generator() -> G2Affine {
-    G2Affine {
-        x: (
-            u256::from_str_radix(
-                "10822403556616783d294cae447f68c351084c519bc131644754784460d3d548",
-                16,
-            )
-            .unwrap(),
-            u256::from_str_radix(
-                "012c40590818290663486c8f967a1262d47155ec1608677c77d0a64983050961",
-                16,
-            )
-            .unwrap(),
-        ),
-        y: (
-            u256::from_str_radix(
-                "0689357dbd07bdc858f01f28fd87f6b6e11802996d9ed800f1351194380126d4",
-                16,
-            )
-            .unwrap(),
-            u256::from_str_radix(
-                "24f0c4314c4083a290e2124576307135e6179426f497401c37b60514f7b603d3",
-                16,
-            )
-            .unwrap(),
-        ),
+        G2Affine {
+            x: (
+                // X c0 (real) - Put this first
+                u256::from_str_radix(
+                    "1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed",
+                    16,
+                ).unwrap(),
+                // X c1 (imaginary) - Put this second
+                u256::from_str_radix(
+                    "198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2",
+                    16,
+                ).unwrap(),
+            ),
+            y: (
+                // Y c0 (real) - Put this first
+                u256::from_str_radix(
+                    "12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa",
+                    16,
+                ).unwrap(),
+                // Y c1 (imaginary) - Put this second
+                u256::from_str_radix(
+                    "090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b",
+                    16,
+                ).unwrap(),
+            ),
+        }
     }
-}
+
 
 #[test]
 fn bench_fr_add() {

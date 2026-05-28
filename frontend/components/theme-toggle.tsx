@@ -1,38 +1,48 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+import * as React from "react";
+import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
-    // Pull in 'resolvedTheme' to handle the 'system' default state correctly
-    const { setTheme, resolvedTheme } = useTheme()
-    const [mounted, setMounted] = React.useState(false)
+  const { theme, setTheme } = useTheme();
 
-    // Ensure component is mounted on the client to prevent hydration mismatch (FOUC)
-    React.useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    if (!mounted) {
-        // A transparent placeholder that perfectly holds the layout space while loading
-        return <div className="w-9 h-9 rounded-full border border-transparent" />
-    }
-
-    // Determine if we are currently in dark mode (resolves system preferences too)
-    const isDark = resolvedTheme === "dark"
-
-    return (
-        <button
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            className="w-9 h-9 flex items-center justify-center rounded-full border border-black dark:border-white hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors focus:outline-none"
-            aria-label="Toggle theme"
-        >
-            {isDark ? (
-                <Sun className="h-4 w-4 text-white" />
-            ) : (
-                <Moon className="h-4 w-4 text-black" />
-            )}
-        </button>
-    )
+  return (
+    <button
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="border-2 border-neutral-200 dark:border-neutral-800 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center h-10 w-10"
+      aria-label="Toggle theme"
+    >
+      <span className="sr-only">Toggle theme</span>
+      {/* Sun Icon (shown in dark mode, switches to light) */}
+      <svg
+        className="w-5 h-5 hidden dark:block text-white"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+        />
+      </svg>
+      {/* Moon Icon (shown in light mode, switches to dark) */}
+      <svg
+        className="w-5 h-5 block dark:hidden text-black"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+        />
+      </svg>
+    </button>
+  );
 }

@@ -23,6 +23,7 @@ export default function Home() {
           {/* Centered Navigation */}
           <nav className="hidden md:flex space-x-8 text-xs font-bold tracking-widest text-neutral-500 dark:text-neutral-400 uppercase">
             <a href="#guides" className="hover:text-black dark:hover:text-white transition-colors duration-200">Guides</a>
+            <a href="/tools/gas-calculator" className="hover:text-black dark:hover:text-white transition-colors duration-200">Tools</a>
             <a href="#contrib" className="hover:text-black dark:hover:text-white transition-colors duration-200">Contrib</a>
             <a href="#source" className="hover:text-black dark:hover:text-white transition-colors duration-200">Source</a>
             <a href="#community" className="hover:text-black dark:hover:text-white transition-colors duration-200">Community</a>

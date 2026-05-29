@@ -37,6 +37,13 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    title: "Tools",
+    children: [
+      { title: "Gas Calculator", href: "/tools/gas-calculator" },
+      { title: "Math Rendering", href: "/docs/math-rendering" },
+    ],
+  },
+  {
     title: "Guides",
     children: [
       { title: "CAP-0075 Integration", href: "/docs/cap0075" },

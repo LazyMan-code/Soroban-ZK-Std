@@ -51,7 +51,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
             <span className="hidden sm:block text-sm font-bold text-black dark:text-white tracking-tight">
               Soroban-ZK-Std
             </span>
-            <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">
+            <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">
               Docs
             </span>
           </Link>

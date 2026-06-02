@@ -120,9 +120,9 @@ jobs:
 
           REQUIRED_DOCS=(
             "frontend/content/docs/getting-started.mdx"
-            "docs/ASP_Integration.md"
-            "docs/cap0075-integration-guide.md"
-            "docs/polynomial-operations.md"
+            "docs/ASP_Integration.mdx"
+            "docs/cap0075-integration-guide.mdx"
+            "docs/polynomial-operations.mdx"
             "README.md"
             "BENCHMARK.md"
             "GAS.md"

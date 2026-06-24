@@ -8,7 +8,7 @@ Thank you for contributing to Soroban-ZK-Std. This document covers the documenta
 
 ### General Documentation
 
-All documentation files in `docs/` (and subdirectories, **except** `docs/specs/`) **must** use the `.mdx` extension.
+All documentation files in `docs/` (and subdirectories, **except** `specs/`) **must** use the `.mdx` extension.
 
 - Supports embedded React components
 - Required for the documentation viewer / Next.js frontend
@@ -27,17 +27,17 @@ All documentation files in `docs/` (and subdirectories, **except** `docs/specs/`
 
 ### Algorithm Specifications
 
-Files in `docs/specs/` **may** remain `.md`.
+Files in `specs/` **may** remain `.md`.
 
 - Intended for mathematical proofs and formal algorithm specifications
-- Plain Markdown keeps the content portable and diff-friendly
+- Plain Markdown keeps the content portable and diff-friendly (preserves math/algo purity)
 - React components are not required here
 
 **Examples:**
 
 ```
-✅ docs/specs/pairing-proof.md
-✅ docs/specs/poseidon2-spec.md
+✅ specs/pairing-proof.md
+✅ specs/poseidon2-spec.md
 ```
 
 ### Frontmatter Requirements
@@ -65,13 +65,13 @@ Before opening a PR, run the doc-extension check locally:
 bash scripts/check-doc-extensions.sh
 ```
 
-This script traverses `docs/`, skips `docs/specs/`, and exits non-zero if any forbidden `.md` file is found. CI runs the same check on every pull request.
+This script traverses `docs/`, skips `specs/`, and exits non-zero if any forbidden `.md` file is found. CI runs the same check on every pull request.
 
 ---
 
 ## Pull Request Checklist
 
-- [ ] New documentation files use `.mdx` (unless under `docs/specs/`)
+- [ ] New documentation files use `.mdx` (unless under `specs/`)
 - [ ] Frontmatter includes `title` and `description`
 - [ ] `bash scripts/check-doc-extensions.sh` exits 0
 - [ ] Internal links between docs use `.mdx` paths, not `.md`

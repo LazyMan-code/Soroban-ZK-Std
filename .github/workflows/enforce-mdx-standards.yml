@@ -14,7 +14,7 @@ on:
 
 jobs:
   check-doc-extensions:
-    name: Reject .md files outside docs/specs/
+    name: Reject .md files outside specs/
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

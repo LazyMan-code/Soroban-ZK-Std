@@ -7,9 +7,15 @@ license.workspace = true
 [lib]
 crate-type = ["lib"]
 
+[features]
+default = []
+std = ["soroban-sdk/hazmat-crypto"] # or however you want to name it
+
 [[bin]]
 name = "gen_vectors"
 path = "src/bin.rs"
+required-features = ["std"]  # Only builds when "std" feature is enabled
+
 
 [dependencies]
 # Inherited from workspace (no_std enabled)

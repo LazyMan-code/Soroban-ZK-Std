@@ -69,7 +69,7 @@ impl G2Affine {
 /// ## Byte Layout
 /// - Bytes 0..32:  `x` (Big-Endian)
 /// - Bytes 32..64: `y` (Big-Endian)
-fn g1_to_bytes(g1: &G1Affine) -> [u8; 64] {
+pub(crate) fn g1_to_bytes(g1: &G1Affine) -> [u8; 64] {
     let mut bytes = [0u8; 64];
     bytes[0..32].copy_from_slice(&g1.x.to_be_bytes());
     bytes[32..64].copy_from_slice(&g1.y.to_be_bytes());
